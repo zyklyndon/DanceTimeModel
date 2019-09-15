@@ -17,7 +17,6 @@ sys.path.append(str(pix2pixhd_dir))
 from data.data_loader import CreateDataLoader
 from models.models import create_model
 import util.util as util
-from util.visualizer import Visualizer
 import src.config.train_opt as opt
 
 os.environ['CUDA_VISIBLE_DEVICES'] = "0"
@@ -40,7 +39,6 @@ def main():
 
     model = create_model(opt)
     model = model.cuda()
-    visualizer = Visualizer(opt)
 
     for epoch in range(start_epoch, opt.niter + opt.niter_decay + 1):
         epoch_start_time = time.time()
@@ -76,22 +74,6 @@ def main():
             model.optimizer_D.zero_grad()
             loss_D.backward()
             model.optimizer_D.step()
-
-
-            ############## Display results and errors ##########
-            ### print out errors
-            if total_steps % opt.print_freq == print_delta:
-                errors = {k: v.data[0] if not isinstance(v, int) else v for k, v in loss_dict.items()}
-                t = (time.time() - iter_start_time) / opt.batchSize
-                visualizer.print_current_errors(epoch, epoch_iter, errors, t)
-                visualizer.plot_current_errors(errors, total_steps)
-
-            ### display output images
-            if save_fake:
-                visuals = OrderedDict([('input_label', util.tensor2label(data['label'][0], opt.label_nc)),
-                                       ('synthesized_image', util.tensor2im(generated.data[0])),
-                                       ('real_image', util.tensor2im(data['image'][0]))])
-                visualizer.display_current_results(visuals, epoch, total_steps)
 
             ### save latest model
             if total_steps % opt.save_latest_freq == save_delta:

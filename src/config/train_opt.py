@@ -1,4 +1,4 @@
-batchSize=1
+batchSize=4
 beta1=0.5
 checkpoints_dir='./checkpoints/'
 continue_train=False
